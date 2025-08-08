@@ -1,0 +1,207 @@
+#!/bin/bash
+
+set -e
+
+required_packages=(curl git wget zsh unzip)
+
+for pkg in "${required_packages[@]}"; do
+    if dpkg -s "$pkg" &> /dev/null; then
+        echo "[✔] $pkg is already installed"
+    else
+        echo "[ ] $pkg not found. Installing..."
+        sudo apt update
+        sudo apt install -y "$pkg"
+    fi
+done
+
+# === Install Oh My Zsh ===
+
+echo "[*] Setting up Oh My Zsh..."
+
+if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
+    echo "[*] Installing Oh My Zsh..."
+    RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+else
+    echo "[*] Oh My Zsh already installed."
+fi
+
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+
+# Set theme to "amuse"
+sed -i 's/^ZSH_THEME=.*/ZSH_THEME="amuse"/' "$HOME/.zshrc"
+
+# Plugins you want
+plugins=(
+    git
+    sudo
+    web-search
+    emoji
+    encode64
+    fast-syntax-highlighting
+    zsh-history-substring-search
+    zsh-autosuggestions
+)
+
+# Install missing plugins from their repos
+declare -A plugin_repos=(
+    [fast-syntax-highlighting]="https://github.com/zdharma-continuum/fast-syntax-highlighting.git"
+    [zsh-history-substring-search]="https://github.com/zsh-users/zsh-history-substring-search.git"
+    [zsh-autosuggestions]="https://github.com/zsh-users/zsh-autosuggestions.git"
+)
+
+echo "[*] Installing Oh My Zsh plugins..."
+
+for plugin in "${plugins[@]}"; do
+    # Skip built-in plugins that come with Oh My Zsh
+    if [[ -n "${plugin_repos[$plugin]}" ]]; then
+        plugin_dir="$ZSH_CUSTOM/plugins/$plugin"
+        if [[ ! -d "$plugin_dir" ]]; then
+            echo "  - Cloning $plugin plugin..."
+            git clone --depth=1 "${plugin_repos[$plugin]}" "$plugin_dir"
+        else
+            echo "  - $plugin plugin already installed."
+        fi
+    fi
+done
+
+# Update .zshrc plugins line
+plugins_line="plugins=(${plugins[*]})"
+if grep -q '^plugins=' "$HOME/.zshrc"; then
+    sed -i "s/^plugins=.*/$plugins_line/" "$HOME/.zshrc"
+else
+    echo "$plugins_line" >> "$HOME/.zshrc"
+fi
+
+# Change default shell to zsh if not already
+if [[ "$SHELL" != "$(command -v zsh)" ]]; then
+    echo "[*] Changing default shell to zsh..."
+    chsh -s "$(command -v zsh)"
+fi
+
+echo "[✔] Oh My Zsh installed and stylized successfully!"
+
+# === Set up Kitty ===
+
+echo "[*] Setting up Kitty terminal..."
+
+echo "[*] Installing Nerd Font"
+FONT_TEMP_DIR=$(mktemp -d -p "$HOME")
+trap 'rm -rf "$FONT_TEMP_DIR"' EXIT 
+
+wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.zip -P "$FONT_TEMP_DIR"
+
+unzip -o "$FONT_TEMP_DIR/JetBrainsMono.zip" -d "$FONT_TEMP_DIR"
+
+mkdir -p "$HOME/.local/share/fonts/JetBrainsMono"
+
+cp "$FONT_TEMP_DIR"/*.ttf "$HOME/.local/share/fonts/JetBrainsMono/"
+
+fc-cache -fv
+
+KITTY_CONFIG_DIR="$HOME/.config/kitty"
+
+mkdir -p "$KITTY_CONFIG_DIR"
+
+cat<<'EOF' > "$KITTY_CONFIG_DIR/current-theme.conf"
+KITTY_THEME_CONF="## name: Alabaster Dark
+## author: Nikita Prokopov
+## license: MIT
+## upstream: https://raw.githubusercontent.com/anmolmathias/kitty-alabaster/master/alabaster-dark.conf
+## blurb: A dark color scheme adsudo apted from Alabaster for the kitty terminal.
+
+#: The basic colors
+
+foreground              #cecece
+background              #0e1415
+
+selection_foreground    #cecece
+selection_background    #293334
+
+
+#: Cursor colors
+
+cursor                  #cd974b
+cursor_text_color       #000000
+
+
+#: URL underline color when hovering with mouse
+
+url_color               #cd974b
+
+
+#: The basic 16 colors
+
+#: black
+color0                  #000000
+color8                  #777777
+
+#: red
+color1                  #e25d56
+color9                  #f36868
+
+#: green
+color2                  #73ca50
+color10                 #88db3f
+
+#: yellow
+color3                  #e9bf57
+color11                 #f0bf7a
+
+#: blue
+color4                  #4a88e4
+color12                 #6f8fdb
+
+#: magenta
+color5                  #915caf
+color13                 #e987e9
+
+#: cyan
+color6                  #23acdd
+color14                 #4ac9e2
+
+#: white
+color7                  #cecece
+color15                 #ffffff
+
+
+#: kitty window border colors and terminal bell colors
+
+active_border_color             #777777
+inactive_border_color           #323738
+bell_border_color               #e97e57
+
+
+#: Tab bar colors
+
+active_tab_foreground           #cecece
+active_tab_background           #0e1415
+inactive_tab_foreground         #b8b8b8
+inactive_tab_background         #323738"
+EOF
+
+cat<<'EOF' > "$KITTY_CONFIG_DIR/kitty.conf"
+font_family JetBrainsMono Nerd Font Mono
+
+font_size 11
+
+map shift+alt+k scroll_line_up
+map shift+alt+j scroll_line_down
+map shift+alt+page_up scroll_page_up
+map shift+alt+page_down scroll_page_down
+map shift+alt+\ scroll_home
+map shift+alt+/ scroll_end
+
+#background_opacity 0.7
+#background_blur 1
+
+# BEGIN_KITTY_THEME
+# Alabaster Dark
+include current-theme.conf
+# END_KITTY_THEME
+
+EOF
+
+
+# === End ===
+
+echo "[✔] Terminal stylizing has completed! Please restart your terminal to apply the changes."
