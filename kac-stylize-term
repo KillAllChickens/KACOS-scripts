@@ -176,7 +176,7 @@ bell_border_color               #e97e57
 active_tab_foreground           #cecece
 active_tab_background           #0e1415
 inactive_tab_foreground         #b8b8b8
-inactive_tab_background         #323738"
+inactive_tab_background         #323738
 EOF
 
 cat<<'EOF' > "$KITTY_CONFIG_DIR/kitty.conf"
@@ -204,4 +204,5 @@ EOF
 
 # === End ===
 
-echo "[✔] Terminal stylizing has completed! Please restart your terminal to apply the changes."
+echo "[✔] Terminal stylizing has completed! Please restart your system to apply the changes."
+echo "> run 'sudo reboot' to restart"
