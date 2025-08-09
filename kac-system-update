@@ -1,0 +1,28 @@
+#!/bin/bash
+
+set -e
+
+sudo -v
+
+echo "[*] Updating APT stuff."
+
+sudo apt update
+sudo apt -y upgrade
+sudo apt -y autoremove
+
+if [ -f "/usr/bin/argus" ] || [ -f "$HOME/.local/bin/argus" ]; then
+    echo "[*] Updating Argus..."
+
+    ARGUS_TEMP_DIR=$(mktemp -d -p "$HOME")
+    trap 'rm -rf "$ARGUS_TEMP_DIR"' EXIT
+
+    git clone https://github.com/KillAllChickens/argus "$ARGUS_TEMP_DIR"
+    cd "$ARGUS_TEMP_DIR"
+    ./scripts/install-linux.sh
+    echo "[✔] Argus successfully updated!"
+fi
+
+if [ -d "$ZSH" ]; then
+    echo "[*] Updating Oh My Zsh..."
+    omz update
+fi
