@@ -18,13 +18,13 @@ done
 
 # === Install Argus ===
 echo "[*] Installing Argus..."
-mkdir -p "\$HOME/.config/argus"
+mkdir -p "$HOME/.config/argus"
 
-ARGUS_TEMP_DIR=\$(mktemp -d -p "\$HOME")
-trap 'rm -rf "\$ARGUS_TEMP_DIR"' EXIT
+ARGUS_TEMP_DIR=$(mktemp -d -p "$HOME")
+trap 'rm -rf "$ARGUS_TEMP_DIR"' EXIT
 
-git clone https://github.com/KillAllChickens/argus "\$ARGUS_TEMP_DIR"
-cd "\$ARGUS_TEMP_DIR"
+git clone https://github.com/KillAllChickens/argus "$ARGUS_TEMP_DIR"
+cd "$ARGUS_TEMP_DIR"
 ./scripts/install-linux.sh
 
 echo "[✔] Argus successfully completed!."

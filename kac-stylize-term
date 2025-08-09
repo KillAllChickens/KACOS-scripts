@@ -27,8 +27,7 @@ fi
 
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 
-# Set theme to "amuse"
-sed -i 's/^ZSH_THEME=.*/ZSH_THEME="amuse"/' "$HOME/.zshrc"
+sed -i 's/^ZSH_THEME=.*/ZSH_THEME="darkblood"/' "$HOME/.zshrc"
 
 # Plugins you want
 plugins=(
