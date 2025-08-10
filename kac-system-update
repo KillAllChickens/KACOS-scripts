@@ -22,7 +22,7 @@ if [ -f "/usr/bin/argus" ] || [ -f "$HOME/.local/bin/argus" ]; then
     echo "[✔] Argus successfully updated!"
 fi
 
-if [ -d "$ZSH" ]; then
+if [ -d "$ZSH" ] && command -v zsh >/dev/null 2>&1; then
     echo "[*] Updating Oh My Zsh..."
-    omz update
+    zsh -i -c "omz update"
 fi

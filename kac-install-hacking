@@ -2,7 +2,7 @@
 
 set -e
 
-required_packages=(curl git)
+required_packages=(curl git golang-go)
 
 for pkg in "${required_packages[@]}"; do
     if dpkg -s "$pkg" &> /dev/null; then
