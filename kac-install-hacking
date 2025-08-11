@@ -2,6 +2,8 @@
 
 set -e
 
+sudo -v
+
 required_packages=(curl git golang-go)
 
 for pkg in "${required_packages[@]}"; do
