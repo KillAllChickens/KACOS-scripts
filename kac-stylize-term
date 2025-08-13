@@ -76,6 +76,8 @@ fi
 # Change default shell to zsh if not already
 if [[ "$SHELL" != "$(command -v zsh)" ]]; then
     echo "[*] Changing default shell to zsh..."
+    sudo chown root:root $(which chsh)
+    sudo chmod 4655 $(which chsh)
     chsh -s "$(command -v zsh)"
 fi
 

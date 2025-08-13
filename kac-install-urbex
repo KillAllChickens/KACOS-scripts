@@ -4,12 +4,12 @@ set -e
 
 sudo -v
 
-required_packages=(curl git wget zsh unzip)
+required_packages=(wget)
 
 for pkg in "${required_packages[@]}"; do
     if dpkg -s "$pkg" &> /dev/null; then
         # echo "[✔] $pkg is already installed"
-        ;
+        :
     else
         echo "[ ] $pkg not found. Installing..."
         sudo apt update
